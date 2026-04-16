@@ -14,13 +14,20 @@ export class ProductsController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  create(
+  async create(
     @Body() createProductDto: CreateProductDto
   ) {
-    return this.productsClient.send(
-      { cmd: 'create_product' },
-      createProductDto
-    )
+    try {
+      const product = await firstValueFrom(
+        this.productsClient.send(
+          { cmd: 'create_product' },
+          createProductDto
+        )
+      );
+      return product;
+    } catch (error: any) {
+      throw new RpcException(error);
+    }
   }
 
 
@@ -54,7 +61,7 @@ export class ProductsController {
         )
       )
       return product;
-    } catch (error) {
+    } catch (error: any) {
       throw new RpcException(error);
     }
   }
@@ -72,7 +79,7 @@ export class ProductsController {
         )
       );
       return product;
-    } catch (error) {
+    } catch (error: any) {
       throw new RpcException(error);
     }
   }
@@ -89,7 +96,7 @@ export class ProductsController {
         )
       );
       return product;
-    } catch (error) {
+    } catch (error: any) {
       throw new RpcException(error);
     }
   }
