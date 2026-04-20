@@ -2,14 +2,14 @@ import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatu
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError, firstValueFrom } from 'rxjs';
 import { PaginationDto } from 'src/common';
-import { PRODUCTS_SERVICE } from 'src/config';
+import { NATS_SERVICE, PRODUCTS_SERVICE } from 'src/config';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('products')
 export class ProductsController {
   constructor(
-    @Inject(PRODUCTS_SERVICE) private readonly productsClient: ClientProxy
+    @Inject(NATS_SERVICE) private readonly client: ClientProxy
   ) { }
 
   @HttpCode(HttpStatus.CREATED)
@@ -19,7 +19,7 @@ export class ProductsController {
   ) {
     try {
       const product = await firstValueFrom(
-        this.productsClient.send(
+        this.client.send(
           { cmd: 'create_product' },
           createProductDto
         )
@@ -35,7 +35,7 @@ export class ProductsController {
   findAll(
     @Query() paginationDto: PaginationDto
   ) {
-    return this.productsClient.send(
+    return this.client.send(
       { cmd: 'find_all_products' },
       paginationDto
     );
@@ -55,7 +55,7 @@ export class ProductsController {
     // );
     try {
       const product = await firstValueFrom(
-        this.productsClient.send(
+        this.client.send(
           { cmd: 'find_one_product' },
           { id }
         )
@@ -73,7 +73,7 @@ export class ProductsController {
   ) {
     try {
       const product = await firstValueFrom(
-        this.productsClient.send(
+        this.client.send(
           { cmd: 'update_product' },
           { id, ...updateProductDto }
         )
@@ -90,7 +90,7 @@ export class ProductsController {
   ) {
     try {
       const product = await firstValueFrom(
-        this.productsClient.send(
+        this.client.send(
           { cmd: 'delete_product' },
           { id }
         )

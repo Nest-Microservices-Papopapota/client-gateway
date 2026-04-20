@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Inject, ParseUUIDPipe, Query, Patch } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { ORDERS_SERVICE } from 'src/config';
+import { NATS_SERVICE, ORDERS_SERVICE } from 'src/config';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { OrderPaginationDto, StatusDto } from './dto';
@@ -9,7 +9,7 @@ import { PaginationDto } from 'src/common';
 @Controller('orders')
 export class OrdersController {
   constructor(
-    @Inject(ORDERS_SERVICE) private readonly ordersClient: ClientProxy
+    @Inject(NATS_SERVICE) private readonly client: ClientProxy
   ) { }
 
   @Post()
@@ -18,7 +18,7 @@ export class OrdersController {
   ) {
     try {
       const order = await firstValueFrom(
-        this.ordersClient.send(
+        this.client.send(
           { cmd: 'create_order' },
           createOrderDto
         )
@@ -34,7 +34,7 @@ export class OrdersController {
     @Query() orderPaginationDto: OrderPaginationDto
   ) {
     // return orderPaginationDto;
-    return this.ordersClient.send(
+    return this.client.send(
       { cmd: 'find_all_orders' },
       orderPaginationDto
     )
@@ -46,7 +46,7 @@ export class OrdersController {
     @Param('id', ParseUUIDPipe) id: string
   ) {
     try {
-      const product = await firstValueFrom(this.ordersClient.send(
+      const product = await firstValueFrom(this.client.send(
         { cmd: 'find_one_order' },
         { id }
       ));
@@ -61,7 +61,7 @@ export class OrdersController {
     @Param() statusDto: StatusDto,
     @Query() paginationDto: PaginationDto
   ) {
-    return this.ordersClient.send(
+    return this.client.send(
       { cmd: 'find_all_orders' },
       { ...paginationDto, status: statusDto.status }
     )
@@ -73,7 +73,7 @@ export class OrdersController {
     @Body() statusDto: StatusDto
   ) {
     try {
-      const order = await firstValueFrom(this.ordersClient.send(
+      const order = await firstValueFrom(this.client.send(
         { cmd: 'change_order_status' },
         { id, ...statusDto }
       ))
