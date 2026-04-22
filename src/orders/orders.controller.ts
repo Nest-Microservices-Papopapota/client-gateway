@@ -30,14 +30,21 @@ export class OrdersController {
   }
 
   @Get()
-  findAll(
+  async findAll(
     @Query() orderPaginationDto: OrderPaginationDto
   ) {
     // return orderPaginationDto;
-    return this.client.send(
-      { cmd: 'find_all_orders' },
-      orderPaginationDto
-    )
+    try {
+      const orders = await firstValueFrom(
+        this.client.send(
+          { cmd: 'find_all_orders' },
+          orderPaginationDto
+        )
+      );
+      return orders;
+    } catch (error: any) {
+      throw new RpcException(error);
+    }
   }
 
 
