@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Inject, ParseUUIDPipe, Query, Patch } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { NATS_SERVICE, ORDERS_SERVICE } from 'src/config';
+import { NATS_SERVICE } from 'src/config';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { OrderPaginationDto, StatusDto } from './dto';
